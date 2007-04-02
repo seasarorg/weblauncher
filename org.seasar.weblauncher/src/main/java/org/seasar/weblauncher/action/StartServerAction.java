@@ -18,6 +18,7 @@ package org.seasar.weblauncher.action;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
@@ -30,14 +31,10 @@ import org.seasar.weblauncher.job.StartServerJob;
 public class StartServerAction extends AbstractProjectAction implements
         IWorkbenchWindowActionDelegate {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.seasar.eclipse.common.action.AbstractProjectAction#run(org.eclipse.core.resources.IProject)
-     */
-    public void run(final IProject project) throws CoreException {
+    public void run(IAction action, IProject project) throws CoreException {
         Job job = new StartServerJob(project);
         job.schedule();
+        action.setEnabled(false);
     }
 
     /*

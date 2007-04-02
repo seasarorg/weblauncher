@@ -18,6 +18,7 @@ package org.seasar.weblauncher.action;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
@@ -37,16 +38,12 @@ public class StopServerAction extends AbstractProjectAction implements
         super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.seasar.h2.action.AbstractProjectAction#run(org.eclipse.core.resources.IProject)
-     */
-    public void run(IProject project) throws CoreException {
+    public void run(IAction action, IProject project) throws CoreException {
         ILaunch launch = Activator.getLaunch(project);
         if (launch != null) {
             launch.terminate();
         }
+        action.setEnabled(false);
     }
 
     /*

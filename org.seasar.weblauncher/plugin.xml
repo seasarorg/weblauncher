@@ -184,7 +184,7 @@
                label="%view"
                style="push"
                toolbarPath="org.seasar.weblauncher.groupMarker"
-               tooltip="%view">
+               >
             <enablement>
                <or>
                   <objectState
@@ -201,12 +201,12 @@
          <action
                class="org.seasar.weblauncher.action.StopServerAction"
                enablesFor="1"
-               icon="icons/term_sbook.gif"
+               icon="icons/stop.gif"
                id="org.seasar.weblauncher.action.stop2"
                label="%stop"
                style="push"
                toolbarPath="org.seasar.weblauncher.groupMarker"
-               tooltip="%stop">
+               >
             <enablement>
                <and>
                <objectState
@@ -221,12 +221,12 @@
          <action
                class="org.seasar.weblauncher.action.StartServerAction"
                enablesFor="1"
-               icon="icons/nav_go.gif"
+               icon="icons/start.gif"
                id="org.seasar.weblauncher.action.start2"
                label="%start"
                style="push"
                toolbarPath="org.seasar.weblauncher.groupMarker"
-               tooltip="%start">
+               >
             <enablement>
                <and>
 	               <not>
