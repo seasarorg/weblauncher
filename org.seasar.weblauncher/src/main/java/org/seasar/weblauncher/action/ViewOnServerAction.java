@@ -136,15 +136,15 @@ public class ViewOnServerAction extends AbstractEditorActionDelegate {
 		IPath webRoot = new Path(pref.getBaseDir());
 		if (webRoot.isPrefixOf(p)) {
 			p = p.removeFirstSegments(webRoot.segmentCount());
-			String s = pref.getContextName();
-			if (StringUtil.isEmpty(s) == false && s.startsWith("/") == false) {
-				s = "/" + s;
-			}
-			p = new Path(s).append(p);
 			StringBuffer stb = new StringBuffer();
 			stb.append("http://localhost:");
 			stb.append(pref.getWebPortNo());
-			stb.append(p.toString());
+
+			String s = pref.getContextName();
+			if (s != null && s.startsWith("/") == false) {
+				s = "/" + s;
+			}
+			stb.append(new Path(s).append(p).toString());
 			return stb.toString();
 		}
 		return "";
