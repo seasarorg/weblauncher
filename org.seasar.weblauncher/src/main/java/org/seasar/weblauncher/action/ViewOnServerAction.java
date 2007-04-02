@@ -47,102 +47,106 @@ import org.seasar.weblauncher.preferences.WebPreferences;
  */
 public class ViewOnServerAction extends AbstractEditorActionDelegate {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-     */
-    public void run(IAction action) {
-        if (resource == null) {
-            return;
-        }
-        final IProject project = resource.getProject();
-        final WebPreferences pref = Activator.getPreferences(project);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+	 */
+	public void run(IAction action) {
+		if (resource == null) {
+			return;
+		}
+		final IProject project = resource.getProject();
+		final WebPreferences pref = Activator.getPreferences(project);
 
-        if (pref.checkServerWhenOpen()) {
-            ILaunch launch = Activator.getLaunch(project);
-            if (launch == null || launch.isTerminated()) {
-                StartServerJob job = new StartServerJob(project) {
-                    public IStatus runInWorkspace(IProgressMonitor monitor)
-                            throws CoreException {
-                        IStatus status = super.runInWorkspace(monitor);
-                        Job open = new ConnectAndOpenJob(pref, 0);
-                        open.schedule(4000L);
-                        return status;
-                    }
-                };
-                job.schedule();
-            } else {
-                open(resource, pref);
-            }
-        } else {
-            open(resource, pref);
-        }
-    }
+		if (pref.checkServerWhenOpen()) {
+			ILaunch launch = Activator.getLaunch(project);
+			if (launch == null || launch.isTerminated()) {
+				StartServerJob job = new StartServerJob(project) {
+					public IStatus runInWorkspace(IProgressMonitor monitor)
+							throws CoreException {
+						IStatus status = super.runInWorkspace(monitor);
+						Job open = new ConnectAndOpenJob(pref, 0);
+						open.schedule(4000L);
+						return status;
+					}
+				};
+				job.schedule();
+			} else {
+				open(resource, pref);
+			}
+		} else {
+			open(resource, pref);
+		}
+	}
 
-    private class ConnectAndOpenJob extends WorkspaceJob {
-        private WebPreferences pref;
+	private class ConnectAndOpenJob extends WorkspaceJob {
+		private WebPreferences pref;
 
-        private int count = 0;
+		private int count = 0;
 
-        public ConnectAndOpenJob(WebPreferences pref, int count) {
-            super(Messages.MSG_CONNECT_SERVER);
-            this.pref = pref;
-            this.count = count;
-        }
+		public ConnectAndOpenJob(WebPreferences pref, int count) {
+			super(Messages.MSG_CONNECT_SERVER);
+			this.pref = pref;
+			this.count = count;
+		}
 
-        public IStatus runInWorkspace(IProgressMonitor monitor)
-                throws CoreException {
-            monitor.beginTask(Messages.MSG_CONNECT_SERVER, 3);
-            InputStream in = null;
-            try {
-                URL url = new URL(createOpenUrl(resource, pref));
-                URLConnection con = url.openConnection();
-                monitor.worked(1);
-                monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
-                con.connect();
-                in = con.getInputStream();
-                in.read();
-                monitor.worked(1);
-                monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL, url));
-                open(resource, pref);
-                monitor.worked(1);
-            } catch (ConnectException con) {
-                if (count < 3) {
-                    ConnectAndOpenJob job = new ConnectAndOpenJob(pref, ++count);
-                    job.schedule(1000L);
-                } else {
-                    Activator.log(con);
-                }
-            } catch (Exception e) {
-                Activator.log(e);
-            } finally {
-                InputStreamUtil.close(in);
-                monitor.done();
-            }
-            return Status.OK_STATUS;
-        }
-    }
+		public IStatus runInWorkspace(IProgressMonitor monitor)
+				throws CoreException {
+			monitor.beginTask(Messages.MSG_CONNECT_SERVER, 3);
+			InputStream in = null;
+			try {
+				URL url = new URL(createOpenUrl(resource, pref));
+				URLConnection con = url.openConnection();
+				monitor.worked(1);
+				monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
+				con.connect();
+				in = con.getInputStream();
+				in.read();
+				monitor.worked(1);
+				monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL, url));
+				open(resource, pref);
+				monitor.worked(1);
+			} catch (ConnectException con) {
+				if (count < 3) {
+					ConnectAndOpenJob job = new ConnectAndOpenJob(pref, ++count);
+					job.schedule(1000L);
+				} else {
+					Activator.log(con);
+				}
+			} catch (Exception e) {
+				Activator.log(e);
+			} finally {
+				InputStreamUtil.close(in);
+				monitor.done();
+			}
+			return Status.OK_STATUS;
+		}
+	}
 
-    private static void open(IResource resource, WebPreferences pref) {
-        String url = createOpenUrl(resource, pref);
-        if (StringUtil.isEmpty(url) == false) {
-            WorkbenchUtil.openUrl(url);
-        }
-    }
+	private static void open(IResource resource, WebPreferences pref) {
+		String url = createOpenUrl(resource, pref);
+		if (StringUtil.isEmpty(url) == false) {
+			WorkbenchUtil.openUrl(url);
+		}
+	}
 
-    private static String createOpenUrl(IResource resource, WebPreferences pref) {
-        IPath p = resource.getFullPath();
-        IPath webRoot = new Path(pref.getBaseDir());
-        if (webRoot.isPrefixOf(p)) {
-            p = p.removeFirstSegments(webRoot.segmentCount());
-            p = new Path(pref.getContextName()).append(p);
-            StringBuffer stb = new StringBuffer();
-            stb.append("http://localhost:");
-            stb.append(pref.getWebPortNo());
-            stb.append(p.toString());
-            return stb.toString();
-        }
-        return "";
-    }
+	private static String createOpenUrl(IResource resource, WebPreferences pref) {
+		IPath p = resource.getFullPath();
+		IPath webRoot = new Path(pref.getBaseDir());
+		if (webRoot.isPrefixOf(p)) {
+			p = p.removeFirstSegments(webRoot.segmentCount());
+			String s = pref.getContextName();
+			if (StringUtil.isEmpty(s) == false && s.startsWith("/") == false) {
+				s = "/" + s;
+			}
+			p = new Path(s).append(p);
+			StringBuffer stb = new StringBuffer();
+			stb.append("http://localhost:");
+			stb.append(pref.getWebPortNo());
+			stb.append(p.toString());
+			return stb.toString();
+		}
+		return "";
+	}
 }
