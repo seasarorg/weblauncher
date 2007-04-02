@@ -2,7 +2,7 @@
 <feature
       id="org.seasar.weblauncher"
       label="%plugin.brand"
-      version="0.0.1"
+      version="0.0.2"
       provider-name="%plugin.author">
 
    <copyright>
