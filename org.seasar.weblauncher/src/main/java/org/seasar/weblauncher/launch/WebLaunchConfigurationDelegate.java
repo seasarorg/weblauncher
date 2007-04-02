@@ -49,10 +49,10 @@ public class WebLaunchConfigurationDelegate extends JavaLaunchDelegate
     public void launch(ILaunchConfiguration configuration, String mode,
             ILaunch launch, IProgressMonitor monitor) throws CoreException {
         super.setDefaultSourceLocator(launch, configuration);
+        IProject project = LaunchUtil.getProject(launch);
         ISourceLocator locator = launch.getSourceLocator();
         if (locator instanceof ISourceLookupDirector) {
             ISourceLookupDirector director = (ISourceLookupDirector) locator;
-            IProject project = LaunchUtil.getProject(launch);
             if (project != null) {
                 IJavaProject javap = JavaCore.create(project);
                 IRuntimeClasspathEntry[] entries = JavaRuntime
@@ -65,7 +65,6 @@ public class WebLaunchConfigurationDelegate extends JavaLaunchDelegate
             }
         }
         super.launch(configuration, mode, launch, monitor);
-        IProject project = LaunchUtil.getProject(launch);
         if (project != null && launch.isTerminated() == false) {
             Activator.setLaunch(project, launch);
         }
