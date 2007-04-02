@@ -18,6 +18,8 @@ package org.seasar.weblauncher.action;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
 import org.seasar.weblauncher.Activator;
 
@@ -25,7 +27,8 @@ import org.seasar.weblauncher.Activator;
  * @author taichi
  * 
  */
-public class StopServerAction extends AbstractProjectAction {
+public class StopServerAction extends AbstractProjectAction implements
+        IWorkbenchWindowActionDelegate {
 
     /**
      * 
@@ -44,5 +47,21 @@ public class StopServerAction extends AbstractProjectAction {
         if (launch != null) {
             launch.terminate();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+     */
+    public void dispose() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
+     */
+    public void init(IWorkbenchWindow window) {
     }
 }

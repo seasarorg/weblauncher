@@ -32,6 +32,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.seasar.eclipse.common.action.AbstractEditorActionDelegate;
 import org.seasar.eclipse.common.util.WorkbenchUtil;
 import org.seasar.framework.util.InputStreamUtil;
@@ -45,108 +47,125 @@ import org.seasar.weblauncher.preferences.WebPreferences;
  * @author taichi
  * 
  */
-public class ViewOnServerAction extends AbstractEditorActionDelegate {
+public class ViewOnServerAction extends AbstractEditorActionDelegate implements
+        IWorkbenchWindowActionDelegate {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-	 */
-	public void run(IAction action) {
-		if (resource == null) {
-			return;
-		}
-		final IProject project = resource.getProject();
-		final WebPreferences pref = Activator.getPreferences(project);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     */
+    public void run(IAction action) {
+        if (resource == null) {
+            return;
+        }
+        final IProject project = resource.getProject();
+        final WebPreferences pref = Activator.getPreferences(project);
 
-		if (pref.checkServerWhenOpen()) {
-			ILaunch launch = Activator.getLaunch(project);
-			if (launch == null || launch.isTerminated()) {
-				StartServerJob job = new StartServerJob(project) {
-					public IStatus runInWorkspace(IProgressMonitor monitor)
-							throws CoreException {
-						IStatus status = super.runInWorkspace(monitor);
-						Job open = new ConnectAndOpenJob(pref, 0);
-						open.schedule(4000L);
-						return status;
-					}
-				};
-				job.schedule();
-			} else {
-				open(resource, pref);
-			}
-		} else {
-			open(resource, pref);
-		}
-	}
+        if (pref.checkServerWhenOpen()) {
+            ILaunch launch = Activator.getLaunch(project);
+            if (launch == null || launch.isTerminated()) {
+                StartServerJob job = new StartServerJob(project) {
+                    public IStatus runInWorkspace(IProgressMonitor monitor)
+                            throws CoreException {
+                        IStatus status = super.runInWorkspace(monitor);
+                        Job open = new ConnectAndOpenJob(pref, 0);
+                        open.schedule(4000L);
+                        return status;
+                    }
+                };
+                job.schedule();
+            } else {
+                open(resource, pref);
+            }
+        } else {
+            open(resource, pref);
+        }
+    }
 
-	private class ConnectAndOpenJob extends WorkspaceJob {
-		private WebPreferences pref;
+    private class ConnectAndOpenJob extends WorkspaceJob {
+        private WebPreferences pref;
 
-		private int count = 0;
+        private int count = 0;
 
-		public ConnectAndOpenJob(WebPreferences pref, int count) {
-			super(Messages.MSG_CONNECT_SERVER);
-			this.pref = pref;
-			this.count = count;
-		}
+        public ConnectAndOpenJob(WebPreferences pref, int count) {
+            super(Messages.MSG_CONNECT_SERVER);
+            this.pref = pref;
+            this.count = count;
+        }
 
-		public IStatus runInWorkspace(IProgressMonitor monitor)
-				throws CoreException {
-			monitor.beginTask(Messages.MSG_CONNECT_SERVER, 3);
-			InputStream in = null;
-			try {
-				URL url = new URL(createOpenUrl(resource, pref));
-				URLConnection con = url.openConnection();
-				monitor.worked(1);
-				monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
-				con.connect();
-				in = con.getInputStream();
-				in.read();
-				monitor.worked(1);
-				monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL, url));
-				open(resource, pref);
-				monitor.worked(1);
-			} catch (ConnectException con) {
-				if (count < 3) {
-					ConnectAndOpenJob job = new ConnectAndOpenJob(pref, ++count);
-					job.schedule(1000L);
-				} else {
-					Activator.log(con);
-				}
-			} catch (Exception e) {
-				Activator.log(e);
-			} finally {
-				InputStreamUtil.close(in);
-				monitor.done();
-			}
-			return Status.OK_STATUS;
-		}
-	}
+        public IStatus runInWorkspace(IProgressMonitor monitor)
+                throws CoreException {
+            monitor.beginTask(Messages.MSG_CONNECT_SERVER, 3);
+            InputStream in = null;
+            try {
+                URL url = new URL(createOpenUrl(resource, pref));
+                URLConnection con = url.openConnection();
+                monitor.worked(1);
+                monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
+                con.connect();
+                in = con.getInputStream();
+                in.read();
+                monitor.worked(1);
+                monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL, url));
+                open(resource, pref);
+                monitor.worked(1);
+            } catch (ConnectException con) {
+                if (count < 3) {
+                    ConnectAndOpenJob job = new ConnectAndOpenJob(pref, ++count);
+                    job.schedule(1000L);
+                } else {
+                    Activator.log(con);
+                }
+            } catch (Exception e) {
+                Activator.log(e);
+            } finally {
+                InputStreamUtil.close(in);
+                monitor.done();
+            }
+            return Status.OK_STATUS;
+        }
+    }
 
-	private static void open(IResource resource, WebPreferences pref) {
-		String url = createOpenUrl(resource, pref);
-		if (StringUtil.isEmpty(url) == false) {
-			WorkbenchUtil.openUrl(url);
-		}
-	}
+    private static void open(IResource resource, WebPreferences pref) {
+        String url = createOpenUrl(resource, pref);
+        if (StringUtil.isEmpty(url) == false) {
+            WorkbenchUtil.openUrl(url);
+        }
+    }
 
-	private static String createOpenUrl(IResource resource, WebPreferences pref) {
-		IPath p = resource.getFullPath();
-		IPath webRoot = new Path(pref.getBaseDir());
-		if (webRoot.isPrefixOf(p)) {
-			p = p.removeFirstSegments(webRoot.segmentCount());
-			StringBuffer stb = new StringBuffer();
-			stb.append("http://localhost:");
-			stb.append(pref.getWebPortNo());
+    private static String createOpenUrl(IResource resource, WebPreferences pref) {
+        IPath p = resource.getFullPath();
+        IPath webRoot = new Path(pref.getBaseDir());
+        if (webRoot.isPrefixOf(p)) {
+            p = p.removeFirstSegments(webRoot.segmentCount());
+            StringBuffer stb = new StringBuffer();
+            stb.append("http://localhost:");
+            stb.append(pref.getWebPortNo());
 
-			String s = pref.getContextName();
-			if (s != null && s.startsWith("/") == false) {
-				s = "/" + s;
-			}
-			stb.append(new Path(s).append(p).toString());
-			return stb.toString();
-		}
-		return "";
-	}
+            String s = pref.getContextName();
+            if (s != null && s.startsWith("/") == false) {
+                s = "/" + s;
+            }
+            stb.append(new Path(s).append(p).toString());
+            return stb.toString();
+        }
+        return "";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+     */
+    public void dispose() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
+     */
+    public void init(IWorkbenchWindow window) {
+    }
 }

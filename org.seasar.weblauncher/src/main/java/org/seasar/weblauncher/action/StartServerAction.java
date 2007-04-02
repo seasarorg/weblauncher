@@ -18,6 +18,8 @@ package org.seasar.weblauncher.action;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
 import org.seasar.weblauncher.job.StartServerJob;
 
@@ -25,7 +27,8 @@ import org.seasar.weblauncher.job.StartServerJob;
  * @author taichi
  * 
  */
-public class StartServerAction extends AbstractProjectAction {
+public class StartServerAction extends AbstractProjectAction implements
+        IWorkbenchWindowActionDelegate {
 
     /*
      * (non-Javadoc)
@@ -37,4 +40,19 @@ public class StartServerAction extends AbstractProjectAction {
         job.schedule();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
+     */
+    public void init(IWorkbenchWindow window) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+     */
+    public void dispose() {
+    }
 }

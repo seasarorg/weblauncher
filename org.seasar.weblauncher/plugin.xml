@@ -62,8 +62,8 @@
          <action
                class="org.seasar.weblauncher.action.StartServerAction"
                enablesFor="1"
-               icon="icons/run_exc.gif"
-               id="org.seasar.weblauncher.start"
+               icon="icons/nav_go.gif"
+               id="org.seasar.weblauncher.action.start"
                label="%start"
                menubarPath="org.seasar.weblauncher.menu/additons">
             <enablement>
@@ -78,7 +78,7 @@
                class="org.seasar.weblauncher.action.StopServerAction"
                enablesFor="1"
                icon="icons/term_sbook.gif"
-               id="org.seasar.weblauncher.stop"
+               id="org.seasar.weblauncher.action.stop"
                label="%stop"
                menubarPath="org.seasar.weblauncher.menu/additons2">
             <enablement>
@@ -109,7 +109,7 @@
                class="org.seasar.weblauncher.action.ViewOnServerAction"
                enablesFor="1"
                icon="icons/browser.gif"
-               id="org.seasar.weblauncher.view"
+               id="org.seasar.weblauncher.action.view"
                label="%view"
                menubarPath="org.seasar.weblauncher.menu/additons">
             <enablement>
@@ -163,6 +163,102 @@
             configTypeID="org.seasar.weblauncher.launchConfigurationType"
             icon="icons/server.gif"
             id="org.seasar.weblauncher.launchConfigurationTypeImage"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.seasar.weblauncher.actionSet"
+            label="%plugin.label"
+            visible="true">
+         <menu
+               id="org.seasar.weblauncher.actionset.menu"
+               label="%plugin.label"
+               >
+            <groupMarker name="org.seasar.weblauncher.groupMarker"/>
+         </menu>
+         <action
+               class="org.seasar.weblauncher.action.ViewOnServerAction"
+               enablesFor="1"
+               icon="icons/browser.gif"
+               id="org.seasar.weblauncher.action.view2"
+               label="%view"
+               style="push"
+               toolbarPath="org.seasar.weblauncher.groupMarker"
+               tooltip="%view">
+            <enablement>
+               <or>
+                  <objectState
+                        name="projectPersistentProperty"
+                        value="org.seasar.weblauncher.checkserver=true"/>
+                  <objectState
+                        name="projectSessionProperty"
+                        value="org.seasar.weblauncher.serverstate"/>
+               </or>
+            </enablement>
+         </action>
+        
+        
+         <action
+               class="org.seasar.weblauncher.action.StopServerAction"
+               enablesFor="1"
+               icon="icons/term_sbook.gif"
+               id="org.seasar.weblauncher.action.stop2"
+               label="%stop"
+               style="push"
+               toolbarPath="org.seasar.weblauncher.groupMarker"
+               tooltip="%stop">
+            <enablement>
+               <and>
+               <objectState
+                     name="projectSessionProperty"
+                     value="org.seasar.weblauncher.serverstate"/>
+                <objectState
+                      name="projectNature"
+                      value="org.seasar.weblauncher.nature"/>
+               </and>
+            </enablement>
+         </action>
+         <action
+               class="org.seasar.weblauncher.action.StartServerAction"
+               enablesFor="1"
+               icon="icons/nav_go.gif"
+               id="org.seasar.weblauncher.action.start2"
+               label="%start"
+               style="push"
+               toolbarPath="org.seasar.weblauncher.groupMarker"
+               tooltip="%start">
+            <enablement>
+               <and>
+	               <not>
+	                  <objectState
+	                        name="projectSessionProperty"
+	                        value="org.seasar.weblauncher.serverstate"/>
+	               </not>
+                <objectState
+                      name="projectNature"
+                      value="org.seasar.weblauncher.nature"/>
+               </and>
+            </enablement>
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.seasar.weblauncher.command.category"
+            name="%plugin.label"/>
+      <command
+            categoryId="org.seasar.weblauncher.command.category"
+            id="org.seasar.weblauncher.command.start"
+            name="%start"/>
+      <command
+            categoryId="org.seasar.weblauncher.command.category"
+            id="org.seasar.weblauncher.command.stop"
+            name="%stop"/>
+      <command
+            categoryId="org.seasar.weblauncher.command.category"
+            id="org.seasar.weblauncher.command.view"
+            name="%view"/>
    </extension>
 
 </plugin>
