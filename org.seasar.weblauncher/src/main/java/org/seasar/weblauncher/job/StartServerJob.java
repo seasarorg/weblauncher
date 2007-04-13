@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
@@ -52,6 +53,8 @@ import winstone.Launcher;
  */
 public class StartServerJob extends WorkspaceJob {
 
+    private static final Object FAMILY_START_SERVER_JOB = new Object();
+
     private IProject project;
 
     public StartServerJob(IProject project) {
@@ -62,33 +65,51 @@ public class StartServerJob extends WorkspaceJob {
     /*
      * (non-Javadoc)
      * 
+     * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
+     */
+    public boolean belongsTo(Object family) {
+        return FAMILY_START_SERVER_JOB == family;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.core.resources.WorkspaceJob#runInWorkspace(org.eclipse.core.runtime.IProgressMonitor)
      */
     public IStatus runInWorkspace(IProgressMonitor monitor)
             throws CoreException {
         final WebPreferences pref = Activator.getPreferences(project);
-        final ILaunchConfiguration config = LaunchConfigurationFactory
-                .create(new LaunchConfigurationFactory.CreationHandler() {
-                    public String getTypeName() {
-                        return Constants.ID_WINSTONE_LAUNCH_CONFIG;
-                    }
+        ILaunch launch = Activator.getLaunch(project);
+        if (project.getSessionProperty(Constants.KEY_JOB_PROCESSING) == null
+                && (launch == null || launch.isTerminated())) {
+            try {
+                project.setSessionProperty(Constants.KEY_JOB_PROCESSING, "");
+                final ILaunchConfiguration config = LaunchConfigurationFactory
+                        .create(new LaunchConfigurationFactory.CreationHandler() {
+                            public String getTypeName() {
+                                return Constants.ID_WINSTONE_LAUNCH_CONFIG;
+                            }
 
-                    public void setUp(ILaunchConfigurationWorkingCopy config) {
-                        StartServerJob.setUp(project, pref, config);
-                    };
+                            public void setUp(
+                                    ILaunchConfigurationWorkingCopy config) {
+                                StartServerJob.setUp(project, pref, config);
+                            };
 
-                    public String getConfigName() {
-                        return project.getName();
-                    }
+                            public String getConfigName() {
+                                return project.getName();
+                            }
 
-                    public boolean equals(ILaunchConfiguration config) {
-                        return false;
-                    }
-                });
-        config.launch(pref.isDebug() ? ILaunchManager.DEBUG_MODE
-                : ILaunchManager.RUN_MODE, monitor);
-        WebRunningDecorator.updateDecorators(project);
-
+                            public boolean equals(ILaunchConfiguration config) {
+                                return false;
+                            }
+                        });
+                config.launch(pref.isDebug() ? ILaunchManager.DEBUG_MODE
+                        : ILaunchManager.RUN_MODE, monitor);
+                WebRunningDecorator.updateDecorators(project);
+            } finally {
+                project.setSessionProperty(Constants.KEY_JOB_PROCESSING, null);
+            }
+        }
         return Status.OK_STATUS;
     }
 

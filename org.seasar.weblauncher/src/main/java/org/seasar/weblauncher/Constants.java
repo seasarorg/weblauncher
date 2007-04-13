@@ -35,6 +35,9 @@ public class Constants {
     public static final QualifiedName KEY_SERVER_STATE = new QualifiedName(
             ID_PLUGIN, "serverstate");
 
+    public static final QualifiedName KEY_JOB_PROCESSING = new QualifiedName(
+            ID_PLUGIN, "jobstarted");
+
     public static final QualifiedName KEY_CHECK_SERVER = new QualifiedName(
             ID_PLUGIN, "checkserver");
 
