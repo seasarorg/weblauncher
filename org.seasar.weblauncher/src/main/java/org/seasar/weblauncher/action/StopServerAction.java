@@ -19,17 +19,15 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.seasar.eclipse.common.action.AbstractProjectAction;
+import org.seasar.eclipse.common.util.ProjectUtil;
 import org.seasar.weblauncher.Activator;
+import org.seasar.weblauncher.Constants;
 
 /**
  * @author taichi
  * 
  */
-public class StopServerAction extends AbstractProjectAction implements
-        IWorkbenchWindowActionDelegate {
+public class StopServerAction extends ServerAction {
 
     /**
      * 
@@ -43,22 +41,22 @@ public class StopServerAction extends AbstractProjectAction implements
         if (launch != null) {
             launch.terminate();
         }
-        action.setEnabled(false);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+     * @see org.seasar.weblauncher.action.ServerAction#checkEnabled()
      */
-    public void dispose() {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
-     */
-    public void init(IWorkbenchWindow window) {
+    protected boolean checkEnabled() {
+        IProject project = ProjectUtil.getCurrentSelectedProject();
+        boolean is = false;
+        if (project != null) {
+            if (ProjectUtil.hasNature(project, Constants.ID_NATURE)) {
+                ILaunch launch = Activator.getLaunch(project);
+                is = launch != null && launch.canTerminate();
+            }
+        }
+        return is;
     }
 }

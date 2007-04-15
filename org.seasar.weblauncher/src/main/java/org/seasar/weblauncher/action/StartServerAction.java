@@ -18,38 +18,33 @@ package org.seasar.weblauncher.action;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.seasar.eclipse.common.action.AbstractProjectAction;
+import org.seasar.eclipse.common.util.ProjectUtil;
+import org.seasar.weblauncher.Activator;
+import org.seasar.weblauncher.Constants;
 import org.seasar.weblauncher.job.StartServerJob;
 
 /**
  * @author taichi
  * 
  */
-public class StartServerAction extends AbstractProjectAction implements
-        IWorkbenchWindowActionDelegate {
+public class StartServerAction extends ServerAction {
 
     public void run(IAction action, IProject project) throws CoreException {
         Job job = new StartServerJob(project);
         job.schedule();
-        action.setEnabled(false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
-     */
-    public void init(IWorkbenchWindow window) {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-     */
-    public void dispose() {
+    protected boolean checkEnabled() {
+        IProject project = ProjectUtil.getCurrentSelectedProject();
+        boolean is = false;
+        if (project != null) {
+            if (ProjectUtil.hasNature(project, Constants.ID_NATURE)) {
+                ILaunch launch = Activator.getLaunch(project);
+                is = launch == null || launch.isTerminated();
+            }
+        }
+        return is;
     }
 }

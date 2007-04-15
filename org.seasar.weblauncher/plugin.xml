@@ -176,48 +176,30 @@
                >
             <groupMarker name="org.seasar.weblauncher.groupMarker"/>
          </menu>
-        
-        
+         <action
+               class="org.seasar.weblauncher.action.ViewOnServerAction"
+               definitionId="org.seasar.weblauncher.command.view"
+               icon="icons/browser.gif"
+               id="org.seasar.weblauncher.action.view2"
+               label="%view"
+               menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
+               toolbarPath="org.seasar.weblauncher.groupMarker"/>
          <action
                class="org.seasar.weblauncher.action.StopServerAction"
-               enablesFor="1"
+               definitionId="org.seasar.weblauncher.command.stop"
                icon="icons/stop.gif"
                id="org.seasar.weblauncher.action.stop2"
                label="%stop"
-               style="push"
-               toolbarPath="org.seasar.weblauncher.groupMarker">
-            <enablement>
-               <and>
-               <objectState
-                     name="projectSessionProperty"
-                     value="org.seasar.weblauncher.serverstate"/>
-                <objectState
-                      name="projectNature"
-                      value="org.seasar.weblauncher.nature"/>
-               </and>
-            </enablement>
-         </action>
+               menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
+               toolbarPath="org.seasar.weblauncher.groupMarker"/>
          <action
                class="org.seasar.weblauncher.action.StartServerAction"
-               enablesFor="1"
+               definitionId="org.seasar.weblauncher.command.start"
                icon="icons/start.gif"
                id="org.seasar.weblauncher.action.start2"
                label="%start"
-               style="push"
-               toolbarPath="org.seasar.weblauncher.groupMarker">
-            <enablement>
-               <and>
-	               <not>
-	                  <objectState
-	                        name="projectSessionProperty"
-	                        value="org.seasar.weblauncher.serverstate"/>
-	               </not>
-                <objectState
-                      name="projectNature"
-                      value="org.seasar.weblauncher.nature"/>
-               </and>
-            </enablement>
-         </action>
+               menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
+               toolbarPath="org.seasar.weblauncher.groupMarker"/>
       </actionSet>
    </extension>
    <extension
@@ -238,56 +220,4 @@
             id="org.seasar.weblauncher.command.view"
             name="%view"/>
    </extension>
-   <extension
-         point="org.eclipse.ui.editorActions">
-      <editorContribution
-            id="org.seasar.weblauncher.editorContribution"
-            targetID="org.eclipse.ui.DefaultTextEditor">
-         <menu
-               id="org.seasar.weblauncher.menu.editor"
-               label="%plugin.label"
-               path="Navigate/additions">
-            <groupMarker name="additions"/>
-         </menu>
-         <action
-               class="org.seasar.weblauncher.action.ViewOnServerAction"
-               definitionId="org.seasar.weblauncher.command.view"
-               icon="icons/browser.gif"
-               id="org.seasar.weblauncher.action.editor.view"
-               label="%view"
-               menubarPath="Navigate/org.seasar.weblauncher.menu.editor/additions"
-               style="push"/>
-         <menu
-               id="org.seasar.weblauncher.menu.editor.server"
-               label="%plugin.label">
-            <groupMarker name="additions"/>
-         </menu>
-         <action
-               class="org.seasar.weblauncher.action.StopServerEditorAction"
-               definitionId="org.seasar.weblauncher.command.stop"
-               icon="icons/stop.gif"
-               id="org.seasar.weblauncher.action.editor.stop"
-               label="%stop"
-               menubarPath="org.seasar.weblauncher.menu.editor.server/additions"
-               style="push"/>
-         <action
-               class="org.seasar.weblauncher.action.StartServerEditorAction"
-               definitionId="org.seasar.weblauncher.command.start"
-               icon="icons/start.gif"
-               id="org.seasar.weblauncher.action.editor.start"
-               label="%start"
-               menubarPath="org.seasar.weblauncher.menu.editor.server/additions"
-               style="push"/>
-      </editorContribution>
-      <editorContribution
-            id="org.seasar.weblauncher.editorContribution.jdt"
-            targetID="org.eclipse.jdt.ui.CompilationUnitEditor"/>
-      <editorContribution
-            id="org.seasar.weblauncher.editorContribution.wst.xml"
-            targetID="org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart"/>
-      <editorContribution
-            id="org.seasar.weblauncher.editorContribution.wst.html"
-            targetID="org.eclipse.wst.html.core.htmlsource.source"/>
-   </extension>
-
 </plugin>

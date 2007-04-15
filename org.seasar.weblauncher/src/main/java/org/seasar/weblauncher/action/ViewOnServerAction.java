@@ -32,13 +32,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.seasar.eclipse.common.action.AbstractEditorActionDelegate;
+import org.seasar.eclipse.common.util.ProjectUtil;
+import org.seasar.eclipse.common.util.ResouceUtil;
 import org.seasar.eclipse.common.util.WorkbenchUtil;
 import org.seasar.framework.util.InputStreamUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.weblauncher.Activator;
+import org.seasar.weblauncher.Constants;
 import org.seasar.weblauncher.job.StartServerJob;
 import org.seasar.weblauncher.nls.Messages;
 import org.seasar.weblauncher.preferences.WebPreferences;
@@ -47,19 +47,41 @@ import org.seasar.weblauncher.preferences.WebPreferences;
  * @author taichi
  * 
  */
-public class ViewOnServerAction extends AbstractEditorActionDelegate implements
-        IWorkbenchWindowActionDelegate {
+public class ViewOnServerAction extends ServerAction {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     * @see org.seasar.weblauncher.action.ServerAction#checkEnabled()
      */
-    public void run(IAction action) {
+    protected boolean checkEnabled() {
+        IProject project = ProjectUtil.getCurrentSelectedProject();
+        boolean is = false;
+        if (project != null) {
+            if (ProjectUtil.hasNature(project, Constants.ID_NATURE)) {
+                WebPreferences pref = Activator.getPreferences(project);
+                if (pref.checkServerWhenOpen()) {
+                    is = true;
+                } else {
+                    ILaunch launch = Activator.getLaunch(project);
+                    is = launch != null && launch.canTerminate();
+                }
+            }
+        }
+        return is;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.seasar.eclipse.common.action.AbstractProjectAction#run(org.eclipse.jface.action.IAction,
+     *      org.eclipse.core.resources.IProject)
+     */
+    public void run(IAction action, IProject project) throws CoreException {
+        final IResource resource = ResouceUtil.getCurrentSelectedResouce();
         if (resource == null) {
             return;
         }
-        final IProject project = resource.getProject();
         final WebPreferences pref = Activator.getPreferences(project);
 
         if (pref.checkServerWhenOpen()) {
@@ -69,7 +91,7 @@ public class ViewOnServerAction extends AbstractEditorActionDelegate implements
                     public IStatus runInWorkspace(IProgressMonitor monitor)
                             throws CoreException {
                         IStatus status = super.runInWorkspace(monitor);
-                        Job open = new ConnectAndOpenJob(pref, 0);
+                        Job open = new ConnectAndOpenJob(resource, pref, 0);
                         open.schedule(4000L);
                         return status;
                     }
@@ -88,8 +110,12 @@ public class ViewOnServerAction extends AbstractEditorActionDelegate implements
 
         private int count = 0;
 
-        public ConnectAndOpenJob(WebPreferences pref, int count) {
+        private IResource resource;
+
+        public ConnectAndOpenJob(IResource resource, WebPreferences pref,
+                int count) {
             super(Messages.MSG_CONNECT_SERVER);
+            this.resource = resource;
             this.pref = pref;
             this.count = count;
         }
@@ -112,7 +138,8 @@ public class ViewOnServerAction extends AbstractEditorActionDelegate implements
                 monitor.worked(1);
             } catch (ConnectException con) {
                 if (count < 3) {
-                    ConnectAndOpenJob job = new ConnectAndOpenJob(pref, ++count);
+                    ConnectAndOpenJob job = new ConnectAndOpenJob(resource,
+                            pref, ++count);
                     job.schedule(1000L);
                 } else {
                     Activator.log(con);
@@ -151,21 +178,5 @@ public class ViewOnServerAction extends AbstractEditorActionDelegate implements
             return stb.toString();
         }
         return "";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-     */
-    public void dispose() {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
-     */
-    public void init(IWorkbenchWindow window) {
     }
 }
