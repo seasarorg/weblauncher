@@ -46,6 +46,6 @@ governing permissions and limitations under the License.
          id="org.seasar.eclipse.common"
          download-size="0"
          install-size="0"
-         version="0.0.3"/>
+         version="0.0.4"/>
 
 </feature>
