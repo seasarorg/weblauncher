@@ -15,9 +15,6 @@
  */
 package org.seasar.weblauncher.action;
 
-import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Event;
@@ -79,9 +76,11 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
             public void partInputChanged(IWorkbenchPartReference partRef) {
+                maybeEnabled();
             }
 
             public void partBroughtToTop(IWorkbenchPartReference partRef) {
+                maybeEnabled();
             }
         };
         window.getActivePage().addPartListener(listener2);
@@ -102,18 +101,6 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
         });
-        DebugPlugin.getDefault().addDebugEventListener(
-                new IDebugEventSetListener() {
-                    public void handleDebugEvents(DebugEvent[] events) {
-                        for (int i = 0; i < events.length; i++) {
-                            DebugEvent event = events[i];
-                            if ((event.getKind() & (DebugEvent.CREATE
-                                    | DebugEvent.TERMINATE | DebugEvent.CHANGE)) != 0) {
-                                maybeEnabled();
-                            }
-                        }
-                    }
-                });
     }
 
     /*
