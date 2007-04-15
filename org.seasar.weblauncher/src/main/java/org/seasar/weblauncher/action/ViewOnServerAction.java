@@ -78,6 +78,9 @@ public class ViewOnServerAction extends ServerAction {
      *      org.eclipse.core.resources.IProject)
      */
     public void run(IAction action, IProject project) throws CoreException {
+        if (ProjectUtil.hasNature(project, Constants.ID_NATURE) == false) {
+            return;
+        }
         final IResource resource = ResouceUtil.getCurrentSelectedResouce();
         if (resource == null) {
             return;
