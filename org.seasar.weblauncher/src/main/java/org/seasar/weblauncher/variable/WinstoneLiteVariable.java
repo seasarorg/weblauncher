@@ -38,7 +38,7 @@ public class WinstoneLiteVariable extends AbstractVariable {
      */
     protected URL getInstallLocation() {
         Bundle bundle = Activator.getDefault().getBundle();
-        return bundle.getEntry("/lib/winstone-lite-0.9.6.jar");
+        return bundle.getEntry("/lib/winstone-lite-0.9.8.jar");
     }
 
 }

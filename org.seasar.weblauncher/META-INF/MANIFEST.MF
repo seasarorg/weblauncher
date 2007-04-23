@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Bundle-Vendor: %plugin.author
 Bundle-ClassPath: weblauncher.jar,
- lib/winstone-0.9.6.jar,
+ lib/winstone-0.9.8.jar,
  lib/aopalliance-1.0.jar,
  lib/commons-logging-1.1.jar,
  lib/geronimo-jta_1.0.1B_spec-1.0.jar,
