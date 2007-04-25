@@ -130,6 +130,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
                         }
                     }
                 });
+        maybeEnabled();
     }
 
     /*
