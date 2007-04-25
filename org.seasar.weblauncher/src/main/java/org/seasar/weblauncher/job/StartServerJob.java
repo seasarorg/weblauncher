@@ -96,7 +96,8 @@ public class StartServerJob extends WorkspaceJob {
                             };
 
                             public String getConfigName() {
-                                return project.getName();
+                                return Constants.ID_PLUGIN + "."
+                                        + project.getName();
                             }
 
                             public boolean equals(ILaunchConfiguration config) {
