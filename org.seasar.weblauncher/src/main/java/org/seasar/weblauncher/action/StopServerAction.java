@@ -40,6 +40,7 @@ public class StopServerAction extends ServerAction {
         ILaunch launch = Activator.getLaunch(project);
         if (launch != null) {
             launch.terminate();
+            Activator.setLaunch(project, null);
         }
     }
 

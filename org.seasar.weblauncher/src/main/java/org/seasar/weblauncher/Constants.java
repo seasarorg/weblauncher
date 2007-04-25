@@ -31,6 +31,8 @@ public class Constants {
     public static final String ID_WINSTONE_LAUNCH_CONFIG = ID_PLUGIN
             + ".launchConfigurationType";
 
+    public static final String ID_BROWSER = ID_PLUGIN + ".browser";
+
     /* ---------------------------------------------------------------------- */
     public static final QualifiedName KEY_SERVER_STATE = new QualifiedName(
             ID_PLUGIN, "serverstate");
@@ -56,4 +58,6 @@ public class Constants {
     public static final String PREF_CONFIG = "configfile";
 
     public static final String PREF_CHECK_SERVER = "checkServer";
+
+    public static final String PREF_USE_INTERNAL_WEBBROWSER = "useInternalWebBrowser";
 }

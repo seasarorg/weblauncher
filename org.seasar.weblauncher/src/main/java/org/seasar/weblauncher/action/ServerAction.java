@@ -15,6 +15,12 @@
  */
 package org.seasar.weblauncher.action;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Event;
@@ -26,6 +32,7 @@ import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.progress.WorkbenchJob;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
 
 /**
@@ -43,7 +50,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
         if (this.delegate == null) {
             return;
         }
-        this.delegate.setEnabled(checkEnabled());
+        delegate.setEnabled(checkEnabled());
     }
 
     /*
@@ -52,13 +59,14 @@ public abstract class ServerAction extends AbstractProjectAction implements
      * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
      */
     public void init(IWorkbenchWindow window) {
-        final IPartListener2 listener2 = new IPartListener2() {
+        window.getActivePage().addPartListener(new IPartListener2() {
 
             public void partActivated(IWorkbenchPartReference partRef) {
                 maybeEnabled();
             }
 
             public void partDeactivated(IWorkbenchPartReference partRef) {
+                maybeEnabled();
             }
 
             public void partOpened(IWorkbenchPartReference partRef) {
@@ -66,6 +74,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
             public void partClosed(IWorkbenchPartReference partRef) {
+                maybeEnabled();
             }
 
             public void partVisible(IWorkbenchPartReference partRef) {
@@ -73,6 +82,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
             public void partHidden(IWorkbenchPartReference partRef) {
+                maybeEnabled();
             }
 
             public void partInputChanged(IWorkbenchPartReference partRef) {
@@ -82,8 +92,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
             public void partBroughtToTop(IWorkbenchPartReference partRef) {
                 maybeEnabled();
             }
-        };
-        window.getActivePage().addPartListener(listener2);
+        });
         window.getWorkbench().addWindowListener(new IWindowListener() {
 
             public void windowActivated(IWorkbenchWindow window) {
@@ -91,9 +100,11 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
             public void windowClosed(IWorkbenchWindow window) {
+                maybeEnabled();
             }
 
             public void windowDeactivated(IWorkbenchWindow window) {
+                maybeEnabled();
             }
 
             public void windowOpened(IWorkbenchWindow window) {
@@ -101,6 +112,24 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
         });
+        DebugPlugin.getDefault().addDebugEventListener(
+                new IDebugEventSetListener() {
+                    public void handleDebugEvents(DebugEvent[] events) {
+                        for (int i = 0; i < events.length; i++) {
+                            DebugEvent e = events[i];
+                            if (((e.getKind() & (DebugEvent.CREATE | DebugEvent.TERMINATE)) != 0)) {
+                                new WorkbenchJob("") {
+                                    public IStatus runInUIThread(
+                                            IProgressMonitor monitor) {
+                                        maybeEnabled();
+                                        return Status.OK_STATUS;
+                                    }
+                                }.schedule();
+
+                            }
+                        }
+                    }
+                });
     }
 
     /*
@@ -109,6 +138,7 @@ public abstract class ServerAction extends AbstractProjectAction implements
      * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
      */
     public void dispose() {
+        this.delegate = null;
     }
 
     /*

@@ -32,7 +32,7 @@ import org.seasar.weblauncher.job.StartServerJob;
 public class StartServerAction extends ServerAction {
 
     public void run(IAction action, IProject project) throws CoreException {
-        if (ProjectUtil.hasNature(project, Constants.ID_NATURE)) {
+        if (checkEnabled()) {
             Job job = new StartServerJob(project);
             job.schedule();
         }

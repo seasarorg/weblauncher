@@ -38,6 +38,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         pref.putBoolean(Constants.PREF_IS_DEBUG, true);
         pref.putBoolean(Constants.PREF_IS_LITE, true);
         pref.putBoolean(Constants.PREF_CHECK_SERVER, false);
+        pref.putBoolean(Constants.PREF_USE_INTERNAL_WEBBROWSER, false);
 
     }
 

@@ -71,6 +71,8 @@ public class WebLauncherPropertyPage extends AbstractPreferencePage {
 
     private Button isLite;
 
+    private Button useInternalWebBrowser;
+
     /*
      * (non-Javadoc)
      * 
@@ -105,6 +107,10 @@ public class WebLauncherPropertyPage extends AbstractPreferencePage {
         this.isLite = new Button(createDefaultComposite(composite), SWT.CHECK);
         this.isLite.setText(Messages.LABEL_IS_LITE);
         this.isLite.setToolTipText(Messages.TOOLTIP_IS_LITE);
+        this.useInternalWebBrowser = new Button(
+                createDefaultComposite(composite), SWT.CHECK);
+        this.useInternalWebBrowser
+                .setText(Messages.LABEL_USE_INTERNAL_WEBBROWSER);
 
         setUpStoredValue();
         return composite;
@@ -150,6 +156,7 @@ public class WebLauncherPropertyPage extends AbstractPreferencePage {
         this.isCheckServer.setSelection(wp.checkServerWhenOpen());
         this.isDebug.setSelection(wp.isDebug());
         this.isLite.setSelection(wp.isLite());
+        this.useInternalWebBrowser.setSelection(wp.useInternalWebBrowser());
     }
 
     /*
@@ -189,6 +196,8 @@ public class WebLauncherPropertyPage extends AbstractPreferencePage {
                 .getDefaultBoolean(Constants.PREF_IS_DEBUG));
         this.isLite.setSelection(store
                 .getDefaultBoolean(Constants.PREF_IS_LITE));
+        this.useInternalWebBrowser.setSelection(store
+                .getDefaultBoolean(Constants.PREF_USE_INTERNAL_WEBBROWSER));
 
     }
 
@@ -230,6 +239,8 @@ public class WebLauncherPropertyPage extends AbstractPreferencePage {
                         .getSelection());
                 store.setValue(Constants.PREF_IS_LITE, this.isLite
                         .getSelection());
+                store.setValue(Constants.PREF_USE_INTERNAL_WEBBROWSER,
+                        this.useInternalWebBrowser.getSelection());
                 if (store instanceof IPersistentPreferenceStore) {
                     IPersistentPreferenceStore pps = (IPersistentPreferenceStore) store;
                     pps.save();

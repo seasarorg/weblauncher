@@ -48,4 +48,8 @@ public interface WebPreferences {
     boolean checkServerWhenOpen();
 
     void setCheckServerWhenOpen(boolean is);
+
+    boolean useInternalWebBrowser();
+
+    void setInternalWebBrowser(boolean is);
 }

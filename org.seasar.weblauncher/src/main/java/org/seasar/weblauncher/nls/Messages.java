@@ -44,6 +44,8 @@ public class Messages extends NLS {
 
     public static String LABEL_CHECK_SERVER;
 
+    public static String LABEL_USE_INTERNAL_WEBBROWSER;
+
     public static String TOOLTIP_CHECK_SERVER;
 
     public static String TOOLTIP_IS_LITE;

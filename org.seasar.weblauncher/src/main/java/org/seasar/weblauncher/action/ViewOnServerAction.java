@@ -22,7 +22,6 @@ import java.net.URLConnection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,11 +31,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.progress.WorkbenchJob;
 import org.seasar.eclipse.common.util.ProjectUtil;
 import org.seasar.eclipse.common.util.ResouceUtil;
-import org.seasar.eclipse.common.util.WorkbenchUtil;
 import org.seasar.framework.util.InputStreamUtil;
-import org.seasar.framework.util.StringUtil;
 import org.seasar.weblauncher.Activator;
 import org.seasar.weblauncher.Constants;
 import org.seasar.weblauncher.job.StartServerJob;
@@ -78,7 +79,7 @@ public class ViewOnServerAction extends ServerAction {
      *      org.eclipse.core.resources.IProject)
      */
     public void run(IAction action, IProject project) throws CoreException {
-        if (ProjectUtil.hasNature(project, Constants.ID_NATURE) == false) {
+        if (checkEnabled() == false) {
             return;
         }
         final IResource resource = ResouceUtil.getCurrentSelectedResouce();
@@ -108,7 +109,7 @@ public class ViewOnServerAction extends ServerAction {
         }
     }
 
-    private class ConnectAndOpenJob extends WorkspaceJob {
+    private class ConnectAndOpenJob extends WorkbenchJob {
         private WebPreferences pref;
 
         private int count = 0;
@@ -123,22 +124,24 @@ public class ViewOnServerAction extends ServerAction {
             this.count = count;
         }
 
-        public IStatus runInWorkspace(IProgressMonitor monitor)
-                throws CoreException {
+        public IStatus runInUIThread(IProgressMonitor monitor) {
             monitor.beginTask(Messages.MSG_CONNECT_SERVER, 3);
             InputStream in = null;
             try {
-                URL url = new URL(createOpenUrl(resource, pref));
-                URLConnection con = url.openConnection();
-                monitor.worked(1);
-                monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
-                con.connect();
-                in = con.getInputStream();
-                in.read();
-                monitor.worked(1);
-                monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL, url));
-                open(resource, pref);
-                monitor.worked(1);
+                URL url = createOpenUrl(resource, pref);
+                if (url != null) {
+                    URLConnection con = url.openConnection();
+                    monitor.worked(1);
+                    monitor.setTaskName(Messages.MSG_WAIT_FOR_SERVER);
+                    con.connect();
+                    in = con.getInputStream();
+                    in.read();
+                    monitor.worked(1);
+                    monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL,
+                            url));
+                    open(url, pref);
+                    monitor.worked(1);
+                }
             } catch (ConnectException con) {
                 if (count < 3) {
                     ConnectAndOpenJob job = new ConnectAndOpenJob(resource,
@@ -158,13 +161,37 @@ public class ViewOnServerAction extends ServerAction {
     }
 
     private static void open(IResource resource, WebPreferences pref) {
-        String url = createOpenUrl(resource, pref);
-        if (StringUtil.isEmpty(url) == false) {
-            WorkbenchUtil.openUrl(url);
+        try {
+            open(createOpenUrl(resource, pref), pref);
+        } catch (Exception e) {
+            Activator.log(e);
         }
     }
 
-    private static String createOpenUrl(IResource resource, WebPreferences pref) {
+    private static void open(URL url, WebPreferences pref) throws Exception {
+        if (url != null) {
+            IWorkbenchBrowserSupport support = PlatformUI.getWorkbench()
+                    .getBrowserSupport();
+            IWebBrowser browser = null;
+            if (support.isInternalWebBrowserAvailable()
+                    && pref.useInternalWebBrowser()) {
+                int flag = IWorkbenchBrowserSupport.AS_EDITOR
+                        | IWorkbenchBrowserSupport.LOCATION_BAR
+                        | IWorkbenchBrowserSupport.NAVIGATION_BAR
+                        | IWorkbenchBrowserSupport.STATUS;
+                browser = support.createBrowser(flag, Constants.ID_BROWSER,
+                        null, null);
+            } else {
+                browser = support.getExternalBrowser();
+            }
+            if (browser != null) {
+                browser.openURL(url);
+            }
+        }
+    }
+
+    private static URL createOpenUrl(IResource resource, WebPreferences pref)
+            throws Exception {
         IPath p = resource.getFullPath();
         IPath webRoot = new Path(pref.getBaseDir());
         if (webRoot.isPrefixOf(p)) {
@@ -178,8 +205,8 @@ public class ViewOnServerAction extends ServerAction {
                 s = "/" + s;
             }
             stb.append(new Path(s).append(p).toString());
-            return stb.toString();
+            return new URL(stb.toString());
         }
-        return "";
+        return null;
     }
 }

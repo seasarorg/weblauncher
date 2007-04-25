@@ -244,4 +244,24 @@ public class WebPreferencesImpl implements WebPreferences {
         store.setValue(Constants.PREF_CHECK_SERVER, is);
         save();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.seasar.weblauncher.preferences.WebPreferences#useInternalWebBrowser()
+     */
+    public boolean useInternalWebBrowser() {
+        return store.getBoolean(Constants.PREF_USE_INTERNAL_WEBBROWSER);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.seasar.weblauncher.preferences.WebPreferences#setInternalWebBrowser(boolean)
+     */
+    public void setInternalWebBrowser(boolean is) {
+        store.setValue(Constants.PREF_USE_INTERNAL_WEBBROWSER, is);
+        save();
+    }
+
 }
