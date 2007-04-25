@@ -2,7 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension
-         id="org.seasar.weblauncher.nature"
+         id="nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run class="org.seasar.weblauncher.nature.WebLauncherNature"/>
@@ -141,6 +141,7 @@
             objectClass="org.eclipse.jdt.core.IJavaProject"/>
    </extension>
    <extension
+         id="launchConfigurationTypes"
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             delegate="org.seasar.weblauncher.launch.WebLaunchConfigurationDelegate"
