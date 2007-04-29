@@ -15,12 +15,6 @@
  */
 package org.seasar.weblauncher.action;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Event;
@@ -32,7 +26,6 @@ import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.progress.WorkbenchJob;
 import org.seasar.eclipse.common.action.AbstractProjectAction;
 
 /**
@@ -42,7 +35,7 @@ import org.seasar.eclipse.common.action.AbstractProjectAction;
 public abstract class ServerAction extends AbstractProjectAction implements
         IWorkbenchWindowActionDelegate, IActionDelegate2, IEditorActionDelegate {
 
-    private IAction delegate;
+    protected IAction delegate;
 
     protected abstract boolean checkEnabled();
 
@@ -112,24 +105,6 @@ public abstract class ServerAction extends AbstractProjectAction implements
             }
 
         });
-        DebugPlugin.getDefault().addDebugEventListener(
-                new IDebugEventSetListener() {
-                    public void handleDebugEvents(DebugEvent[] events) {
-                        for (int i = 0; i < events.length; i++) {
-                            DebugEvent e = events[i];
-                            if (((e.getKind() & (DebugEvent.CREATE | DebugEvent.TERMINATE)) != 0)) {
-                                new WorkbenchJob("") {
-                                    public IStatus runInUIThread(
-                                            IProgressMonitor monitor) {
-                                        maybeEnabled();
-                                        return Status.OK_STATUS;
-                                    }
-                                }.schedule();
-
-                            }
-                        }
-                    }
-                });
         maybeEnabled();
     }
 

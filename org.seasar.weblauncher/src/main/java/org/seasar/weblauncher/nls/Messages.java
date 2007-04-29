@@ -61,4 +61,8 @@ public class Messages extends NLS {
     public static String MSG_OPEN_URL;
 
     public static String URL_WINSTONE;
+
+    public static String LABEL_START;
+
+    public static String LABEL_STOP;
 }

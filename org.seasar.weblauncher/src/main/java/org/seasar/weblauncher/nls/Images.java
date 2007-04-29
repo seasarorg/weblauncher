@@ -24,6 +24,10 @@ import org.seasar.eclipse.common.util.StaticImageLoader;
  */
 public class Images {
     public static ImageDescriptor RUNNING;
+    
+    public static ImageDescriptor START;
+    
+    public static ImageDescriptor STOP;
 
     static {
         StaticImageLoader.loadResources(Images.class, Images.class.getName());

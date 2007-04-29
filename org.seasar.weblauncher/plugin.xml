@@ -186,18 +186,10 @@
                menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
                toolbarPath="org.seasar.weblauncher.groupMarker"/>
          <action
-               class="org.seasar.weblauncher.action.StopServerAction"
-               definitionId="org.seasar.weblauncher.command.stop"
-               icon="icons/stop.gif"
-               id="org.seasar.weblauncher.action.stop2"
-               label="%stop"
-               menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
-               toolbarPath="org.seasar.weblauncher.groupMarker"/>
-         <action
-               class="org.seasar.weblauncher.action.StartServerAction"
-               definitionId="org.seasar.weblauncher.command.start"
+               class="org.seasar.weblauncher.action.ToggleServerAction"
+               definitionId="org.seasar.weblauncher.command.toggle"
                icon="icons/start.gif"
-               id="org.seasar.weblauncher.action.start2"
+               id="org.seasar.weblauncher.action.toggle"
                label="%start"
                menubarPath="org.seasar.weblauncher.actionset.menu/org.seasar.weblauncher.groupMarker"
                toolbarPath="org.seasar.weblauncher.groupMarker"/>
@@ -210,12 +202,8 @@
             name="%plugin.label"/>
       <command
             categoryId="org.seasar.weblauncher.command.category"
-            id="org.seasar.weblauncher.command.start"
-            name="%start"/>
-      <command
-            categoryId="org.seasar.weblauncher.command.category"
-            id="org.seasar.weblauncher.command.stop"
-            name="%stop"/>
+            id="org.seasar.weblauncher.command.toggle"
+            name="%toggle"/>
       <command
             categoryId="org.seasar.weblauncher.command.category"
             id="org.seasar.weblauncher.command.view"
