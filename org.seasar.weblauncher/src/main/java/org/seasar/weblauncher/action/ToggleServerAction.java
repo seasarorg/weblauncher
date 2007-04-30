@@ -92,7 +92,19 @@ public class ToggleServerAction extends ServerAction {
     }
 
     protected boolean checkEnabled() {
-        return checkEnabled(ProjectUtil.getCurrentSelectedProject());
+        IProject project = ProjectUtil.getCurrentSelectedProject();
+        boolean result = checkEnabled(project);
+        if (result) {
+            ILaunch launch = Activator.getLaunch(project);
+            if (launch == null || launch.isTerminated()) {
+                current = start;
+            } else {
+                current = stop;
+            }
+            delegate.setImageDescriptor(current.getImage());
+            delegate.setText(current.getText());
+        }
+        return result;
     }
 
     private static boolean checkEnabled(IProject project) {
