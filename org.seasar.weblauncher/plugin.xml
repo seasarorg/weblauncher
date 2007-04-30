@@ -60,7 +60,7 @@
                   value="org.seasar.weblauncher.nature"/>
          </visibility>
          <action
-               class="org.seasar.weblauncher.action.StartServerAction"
+               class="org.seasar.weblauncher.action.ToggleServerAction"
                enablesFor="1"
                icon="icons/start.gif"
                id="org.seasar.weblauncher.action.start"
@@ -72,19 +72,6 @@
                         name="sessionProperty"
                         value="org.seasar.weblauncher.serverstate"/>
                </not>
-            </enablement>
-         </action>
-         <action
-               class="org.seasar.weblauncher.action.StopServerAction"
-               enablesFor="1"
-               icon="icons/stop.gif"
-               id="org.seasar.weblauncher.action.stop"
-               label="%stop"
-               menubarPath="org.seasar.weblauncher.menu/additons2">
-            <enablement>
-               <objectState
-                     name="sessionProperty"
-                     value="org.seasar.weblauncher.serverstate"/>
             </enablement>
          </action>
       </objectContribution>
