@@ -91,7 +91,7 @@ public class ToggleServerAction extends ServerAction {
         current = start;
     }
 
-    protected boolean checkEnabled() {
+    protected synchronized boolean checkEnabled() {
         IProject project = ProjectUtil.getCurrentSelectedProject();
         boolean result = checkEnabled(project);
         if (result) {
