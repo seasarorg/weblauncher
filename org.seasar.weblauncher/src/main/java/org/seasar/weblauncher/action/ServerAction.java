@@ -26,14 +26,13 @@ import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.seasar.eclipse.common.action.AbstractProjectAction;
 
 /**
  * @author taichi
  * 
  */
-public abstract class ServerAction extends AbstractProjectAction implements
-        IWorkbenchWindowActionDelegate, IActionDelegate2, IEditorActionDelegate {
+public abstract class ServerAction implements IWorkbenchWindowActionDelegate,
+        IActionDelegate2, IEditorActionDelegate {
 
     protected IAction delegate;
 
@@ -148,7 +147,6 @@ public abstract class ServerAction extends AbstractProjectAction implements
      *      org.eclipse.jface.viewers.ISelection)
      */
     public void selectionChanged(IAction action, ISelection selection) {
-        super.selectionChanged(action, selection);
         maybeEnabled();
     }
 }

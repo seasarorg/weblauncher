@@ -21,7 +21,16 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.XMLMemento;
 import org.seasar.eclipse.common.util.ProjectUtil;
+import org.seasar.eclipse.common.util.WorkbenchUtil;
 import org.seasar.weblauncher.Activator;
 import org.seasar.weblauncher.Constants;
 import org.seasar.weblauncher.job.StartServerJob;
@@ -93,6 +102,9 @@ public class ToggleServerAction extends ServerAction {
 
     protected synchronized boolean checkEnabled() {
         IProject project = ProjectUtil.getCurrentSelectedProject();
+        if (project == null) {
+            project = getProjectByBrowserId();
+        }
         boolean result = checkEnabled(project);
         if (result) {
             ILaunch launch = Activator.getLaunch(project);
@@ -107,20 +119,56 @@ public class ToggleServerAction extends ServerAction {
         return result;
     }
 
+    protected IProject getProjectByBrowserId() {
+        IProject result = null;
+        // see. ViewOnServerAction
+        IWorkbenchWindow window = WorkbenchUtil.getWorkbenchWindow();
+        if (window != null) {
+            IWorkbenchPage page = window.getActivePage();
+            if (page != null) {
+                // getActiveEditorで取れる参照は、フォーカスがどこにあってもアクティブなエディタの参照が取れてしまう為。
+                IWorkbenchPart part = page.getActivePart();
+                if (part instanceof IEditorPart) {
+                    IEditorPart editor = (IEditorPart) part;
+                    IEditorInput input = editor.getEditorInput();
+                    if (input instanceof IPersistableElement) {
+                        IPersistableElement element = (IPersistableElement) input;
+                        IMemento memento = XMLMemento.createWriteRoot("root");
+                        // see. WebBrowserEditorInput
+                        element.saveState(memento);
+                        String url = memento.getString("url");
+                        result = Activator.findProject(url);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     private static boolean checkEnabled(IProject project) {
         return project != null
                 && ProjectUtil.hasNature(project, Constants.ID_NATURE);
     }
 
-    public void run(IAction action, IProject project) throws CoreException {
-        current.run(action, ProjectUtil.getCurrentSelectedProject());
-        if (current == start) {
-            current = stop;
-        } else {
-            current = start;
+    public void run(IAction action) {
+        try {
+            IProject project = ProjectUtil.getCurrentSelectedProject();
+            if (project == null) {
+                project = getProjectByBrowserId();
+            }
+            if (project != null) {
+                current.run(action, project);
+                if (current == start) {
+                    current = stop;
+                } else {
+                    current = start;
+                }
+                action.setImageDescriptor(current.getImage());
+                action.setText(current.getText());
+            }
+        } catch (CoreException e) {
+            Activator.log(e);
         }
-        action.setImageDescriptor(current.getImage());
-        action.setText(current.getText());
     }
 
 }

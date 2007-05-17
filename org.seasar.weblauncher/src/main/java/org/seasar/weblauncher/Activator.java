@@ -1,5 +1,9 @@
 package org.seasar.weblauncher;
 
+import java.net.URL;
+import java.util.Hashtable;
+import java.util.Map;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Plugin;
@@ -17,6 +21,8 @@ public class Activator extends Plugin {
 
     // The shared instance
     private static Activator plugin;
+
+    private static Map urlToProjectCache = new Hashtable();
 
     /**
      * The constructor
@@ -90,4 +96,15 @@ public class Activator extends Plugin {
         return result;
     }
 
+    public static void entry(IProject project, URL url) {
+        urlToProjectCache.put(url.toExternalForm(), project);
+    }
+
+    public static IProject findProject(String url) {
+        return (IProject) urlToProjectCache.get(url);
+    }
+
+    public static void exit(String url) {
+        urlToProjectCache.remove(url);
+    }
 }

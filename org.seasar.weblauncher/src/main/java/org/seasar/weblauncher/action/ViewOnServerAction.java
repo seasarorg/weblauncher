@@ -31,7 +31,16 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -70,6 +79,22 @@ public class ViewOnServerAction extends ServerAction {
             }
         }
         return is;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     */
+    public void run(IAction action) {
+        try {
+            IProject project = ProjectUtil.getCurrentSelectedProject();
+            if (project != null) {
+                run(action, project);
+            }
+        } catch (CoreException e) {
+            Activator.log(e);
+        }
     }
 
     /*
@@ -139,7 +164,7 @@ public class ViewOnServerAction extends ServerAction {
                     monitor.worked(1);
                     monitor.setTaskName(Messages.bind(Messages.MSG_OPEN_URL,
                             url));
-                    open(url, pref);
+                    open(url, resource.getProject(), pref);
                     monitor.worked(1);
                 }
             } catch (ConnectException con) {
@@ -162,13 +187,14 @@ public class ViewOnServerAction extends ServerAction {
 
     private static void open(IResource resource, WebPreferences pref) {
         try {
-            open(createOpenUrl(resource, pref), pref);
+            open(createOpenUrl(resource, pref), resource.getProject(), pref);
         } catch (Exception e) {
             Activator.log(e);
         }
     }
 
-    private static void open(URL url, WebPreferences pref) throws Exception {
+    private static void open(URL url, IProject project, WebPreferences pref)
+            throws Exception {
         if (url != null) {
             IWorkbenchBrowserSupport support = PlatformUI.getWorkbench()
                     .getBrowserSupport();
@@ -178,9 +204,11 @@ public class ViewOnServerAction extends ServerAction {
                 int flag = IWorkbenchBrowserSupport.AS_EDITOR
                         | IWorkbenchBrowserSupport.LOCATION_BAR
                         | IWorkbenchBrowserSupport.NAVIGATION_BAR
-                        | IWorkbenchBrowserSupport.STATUS;
+                        | IWorkbenchBrowserSupport.STATUS
+                        | IWorkbenchBrowserSupport.PERSISTENT;
                 browser = support.createBrowser(flag, Constants.ID_BROWSER,
                         null, null);
+                Activator.entry(project, url);
             } else {
                 browser = support.getExternalBrowser();
             }
@@ -209,4 +237,58 @@ public class ViewOnServerAction extends ServerAction {
         }
         return null;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.seasar.weblauncher.action.ServerAction#init(org.eclipse.ui.IWorkbenchWindow)
+     */
+    public void init(IWorkbenchWindow window) {
+        window.getPartService().addPartListener(new IPartListener2() {
+
+            public void partActivated(IWorkbenchPartReference partRef) {
+            }
+
+            public void partBroughtToTop(IWorkbenchPartReference partRef) {
+            }
+
+            public void partClosed(IWorkbenchPartReference partRef) {
+                if ("org.eclipse.ui.browser.editor".equals(partRef.getId())) {
+                    IWorkbenchPart part = partRef.getPart(false);
+                    if (part instanceof IEditorPart) {
+                        IEditorPart editor = (IEditorPart) part;
+                        IEditorInput input = editor.getEditorInput();
+                        if (input instanceof IPersistableElement) {
+                            IPersistableElement element = (IPersistableElement) input;
+                            IMemento memento = XMLMemento
+                                    .createWriteRoot("root");
+                            // see. WebBrowserEditorInput
+                            element.saveState(memento);
+                            String url = memento.getString("url");
+                            Activator.exit(url);
+                        }
+                    }
+                }
+            }
+
+            public void partDeactivated(IWorkbenchPartReference partRef) {
+            }
+
+            public void partHidden(IWorkbenchPartReference partRef) {
+            }
+
+            public void partInputChanged(IWorkbenchPartReference partRef) {
+            }
+
+            public void partOpened(IWorkbenchPartReference partRef) {
+            }
+
+            public void partVisible(IWorkbenchPartReference partRef) {
+            }
+
+        });
+
+        super.init(window);
+    }
+
 }
