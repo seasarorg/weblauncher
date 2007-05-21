@@ -19,11 +19,10 @@ Bundle-Vendor: %plugin.author
 Bundle-ClassPath: weblauncher.jar,
  lib/winstone-0.9.8.jar,
  lib/aopalliance-1.0.jar,
- lib/commons-logging-1.1.jar,
  lib/geronimo-jta_1.0.1B_spec-1.0.jar,
  lib/javassist-3.3.ga.jar,
  lib/junit-3.8.2.jar,
  lib/log4j-1.2.13.jar,
  lib/ognl-2.6.7.jar,
- lib/s2-extension-2.4.4.jar,
- lib/s2-framework-2.4.4.jar
+ lib/s2-framework-2.4.4.jar,
+ commonLib/commons-logging-1.1.jar
