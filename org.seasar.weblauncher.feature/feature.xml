@@ -2,7 +2,7 @@
 <feature
       id="org.seasar.weblauncher"
       label="%plugin.brand"
-      version="0.1.0"
+      version="0.2.0"
       provider-name="%plugin.author">
 
    <copyright>
@@ -40,6 +40,6 @@ governing permissions and limitations under the License.
          id="org.seasar.weblauncher"
          download-size="0"
          install-size="0"
-         version="0.1.0"/>
+         version="0.2.0"/>
 
 </feature>
